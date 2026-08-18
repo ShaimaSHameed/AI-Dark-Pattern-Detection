@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bias Detection System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html,body{height:100%}
+    body{font-family:'Inter',Arial,sans-serif;background:linear-gradient(135deg,#f5f3ff 0%,#ede9fe 50%,#ddd6fe 100%);color:#111;display:flex;flex-direction:column;min-height:100vh;}
+    main{flex:1}
+    
+    /* Navigation */
+    .topNavBar{display:flex;justify-content:space-between;align-items:center;padding:18px 60px;background:rgba(255,255,255,0.8);backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,0.08);position:sticky;top:0;width:100%;z-index:10}
+    .LeftLogoBox{display:flex;align-items:center;gap:12px}
+    .LogoSVG{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(139,92,246,0.4);padding:8px}
+    .logoNav{font-weight:700;font-size:1.4rem;color:#1f2937;letter-spacing:-0.5px}
+    .hamburger{display:none;font-size:2rem;cursor:pointer;color:#333}
+    .navLinks{list-style:none;display:flex;justify-content:center;flex:1;gap:50px;margin:0}
+    .navLinks li a{text-decoration:none;color:#4b5563;font-weight:500;font-size:0.95rem;padding:8px 16px;border-radius:8px;transition:all 0.3s ease}
+    .navLinks li a:hover{color:#7c3aed;background:rgba(139,92,246,0.1)}
+    
+    /* Hero Section */
+    .heroSection{padding:80px 20px 100px;display:flex;justify-content:center;align-items:center}
+    .heroContent{max-width:700px;width:100%;text-align:center}
+    .mainHeading{font-size:3.2rem;margin-bottom:16px;font-weight:700;background:linear-gradient(135deg,#7c3aed,#5b21b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+    .subHeading{font-size:1.15rem;color:#6b7280;margin-bottom:40px;font-weight:400}
+    
+    /* Input Card */
+    .inputCard{background:white;padding:36px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1);border:1px solid rgba(139,92,246,0.1)}
+    
+    /* Textarea */
+    textarea{width:100%;min-height:150px;padding:18px;border-radius:14px;border:2px solid #e5e7eb;font-size:1rem;font-family:'Inter',sans-serif;resize:vertical;margin-bottom:24px;transition:all 0.3s ease;background:#fafafa;color:#1f2937}
+    textarea:focus{outline:none;border-color:#8b5cf6;background:white;box-shadow:0 0 0 4px rgba(139,92,246,0.1)}
+    textarea::placeholder{color:#9ca3af;font-style:italic}
+    
+    /* Buttons */
+    #analyzeBtn, #rewriteBtn{width:100%;padding:18px;border:none;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(139,92,246,0.4);letter-spacing:0.3px}
+    #analyzeBtn:hover, #rewriteBtn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(139,92,246,0.5);background:linear-gradient(135deg,#7c3aed,#6d28d9)}
+    #analyzeBtn:active, #rewriteBtn:active{transform:translateY(0);box-shadow:0 2px 10px rgba(139,92,246,0.4)}
+    #analyzeBtn:disabled, #rewriteBtn:disabled{background:linear-gradient(135deg,#a78bfa,#8b5cf6);cursor:wait;transform:none;opacity:0.8}
+    
+    #rewriteBtn{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,0.4);margin-top:12px}
+    #rewriteBtn:hover{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 6px 25px rgba(16,185,129,0.5)}
+    
+    /* Result Box */
+    #resultBox{margin-top:24px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);padding:20px;border-radius:14px;font-size:0.95rem;color:#4b5563;border:1px solid rgba(139,92,246,0.15);line-height:1.7}
+    #resultBox strong{color:#5b21b6}
+    
+    /* Result states */
+    .result-success{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:rgba(16,185,129,0.2)}
+    .result-success strong{color:#047857}
+    .result-error{background:linear-gradient(135deg,#fef2f2,#fee2e2);border-color:rgba(239,68,68,0.2)}
+    .result-error strong{color:#dc2626}
+    
+    /* Powered by */
+    .poweredBy{margin-top:20px;font-size:0.85rem;color:#9ca3af;display:flex;align-items:center;justify-content:center;gap:6px}
+    .poweredBy span{background:linear-gradient(135deg,#8b5cf6,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:600}
+    
+    /* Footer */
+    .footerSection{padding:24px;text-align:center;font-size:0.9rem;color:#6b7280;background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);border-top:1px solid rgba(139,92,246,0.1);margin-top:auto}
+    .footerSection p{font-weight:500}
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .topNavBar{padding:16px 24px}
+      .navLinks{display:none}
+      .hamburger{display:block}
+      .navLinks.active{display:flex;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:white;padding:20px;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
+      .mainHeading{font-size:2.2rem}
+      .heroSection{padding:50px 16px 70px}
+      .inputCard{padding:24px}
+    }
+    
+    /* Animation */
+    @keyframes fadeInUp {
+      from{opacity:0;transform:translateY(20px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .heroContent{animation:fadeInUp 0.6s ease forwards}
+    
+    /* Loading animation */
+    @keyframes pulse {
+      0%,100%{opacity:1}
+      50%{opacity:0.6}
+    }
+    #analyzeBtn:disabled, #rewriteBtn:disabled{animation:pulse 1.5s ease-in-out infinite}
+  </style>
+</head>
+<body>
+  <nav class="topNavBar">
+    <div class="LeftLogoBox">
+      <div class="LogoSVG">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z" fill="white"/><circle cx="12" cy="11" r="3" fill="#7c3aed"/></svg>
+      </div>
+      <div class="logoNav">BDSystem</div>
+    </div>
+
+    <div class="hamburger" id="hamburgerBtn">&#9776;</div>
+
+    <ul class="navLinks" id="navLinksBox">
+      <li><a href="#homeSection">Home</a></li>
+      <li><a href="#historySection">History</a></li>
+      <li><a href="https://huggingface.co/datasets/apart/darkbench" target="_blank">Dataset</a></li>
+      <li><a href="#contactSection">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="heroSection" id="homeSection">
+      <div class="heroContent">
+        <h1 class="mainHeading">Bias Detection System</h1>
+        <p class="subHeading">Analyze your text for potential biases</p>
+        <div class="inputCard">
+          <textarea id="promptBox" placeholder="Enter your text here to analyze for potential biases..."></textarea>
+          <button id="analyzeBtn">Analyze for Bias</button>
+          <button id="rewriteBtn" style="display:none;margin-top:16px;background:linear-gradient(135deg,#10b981,#059669)">Rewrite to Neutral</button>
+          <div id="resultBox">Your analysis results will appear here.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contactSection" class="footerSection">
+    <p>Project by Ahmed, Neshwa, Rafae and Shaima</p>
+  </footer>
+
+  <script>
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const rewriteBtn = document.getElementById('rewriteBtn');
+    const promptBox = document.getElementById('promptBox');
+    const resultBox = document.getElementById('resultBox');
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
+    const navLinksBox = document.getElementById("navLinksBox");
+
+    const API_BASE = "http://127.0.0.1:8000";
+    let lastAnalyzedText = "";
+
+    // Analyze only
+    analyzeBtn.addEventListener('click', async () => {
+      const textValue = promptBox.value.trim();
+      if (textValue === "") {
+        alert("Please enter a text to analyze!");
+        return;
+      }
+      analyzeBtn.innerText = "Analyzing...";
+      analyzeBtn.disabled = true;
+      rewriteBtn.style.display = "none";
+      resultBox.innerText = "Processing your text...";
+      resultBox.className = "";
+
+      try {
+        const response = await fetch(API_BASE + "/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: textValue })
+        });
+        if (!response.ok) throw new Error(await response.text() || "Server error");
+        const data = await response.json();
+        
+        lastAnalyzedText = textValue;
+        
+        if (data.label === "neutral") {
+          resultBox.className = "result-success";
+          resultBox.innerHTML = `
+            <strong>Prediction:</strong> ${data.label} <br/>
+            <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%<br/>
+            <span style="color:#059669;font-weight:600">No bias detected!</span>
+          `;
+          rewriteBtn.style.display = "none";
+        } else {
+          resultBox.className = "result-error";
+          resultBox.innerHTML = `
+            <strong>Prediction:</strong> ${data.label} <br/>
+            <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%<br/>
+            <span style="color:#dc2626;font-weight:600">Bias detected! Click below to get a neutral version.</span>
+          `;
+          rewriteBtn.style.display = "block";
+          resultBox.appendChild(rewriteBtn);
+        }
+      } catch (err) {
+        resultBox.className = "result-error";
+        resultBox.innerText = "Error: " + err.message;
+      } finally {
+        analyzeBtn.innerText = "Analyze for Bias";
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    // Rewrite to neutral
+    rewriteBtn.addEventListener('click', async () => {
+      rewriteBtn.innerText = "Rewriting...";
+      analyzeBtn.disabled = true;
+      rewriteBtn.disabled = true;
+
+      try {
+        const response = await fetch(API_BASE + "/api/analyze-and-rewrite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: lastAnalyzedText })
+        });
+        if (!response.ok) throw new Error(await response.text() || "Server error");
+        const data = await response.json();
+        
+        let html = `
+          <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.1)">
+            <strong>Original Prompt</strong><br/>
+            <span style="color:#6b7280">${data.original_prompt}</span><br/>
+            <strong>Label:</strong> ${data.original_label} &nbsp;
+            <strong>Confidence:</strong> ${(data.original_confidence * 100).toFixed(2)}%
+          </div>
+          <div>
+            <strong>Suggested Neutral Prompt</strong><br/>
+            <span style="color:#059669;font-weight:500;font-size:1.05rem">${data.rewritten_prompt}</span>
+          </div>
+        `;
+        
+        resultBox.className = "result-success";
+        resultBox.innerHTML = html;
+        rewriteBtn.style.display = "none";
+      } catch (err) {
+        resultBox.className = "result-error";
+        resultBox.innerText = "Error: " + err.message;
+      } finally {
+        rewriteBtn.innerText = "Rewrite to Neutral";
+        analyzeBtn.disabled = false;
+        rewriteBtn.disabled = false;
+      }
+    });
+
+    hamburgerBtn.addEventListener("click", () => {
+      navLinksBox.classList.toggle("active");
+    });
+  </script>
+</body>
+</html>
