@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+transformers
+torch
+pandas
+datasets
+scikit-learn
+textblob
+vaderSentiment
+joblib
+tqdm
+seaborn
+matplotlib
+sentencepiece
+requests
